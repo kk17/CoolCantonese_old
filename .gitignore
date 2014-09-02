@@ -1,0 +1,8 @@
+*.pyc
+*.swp
+*.wav
+*.mp3
+*.log
+env.cfg
+redis.cfg
+werobot_session

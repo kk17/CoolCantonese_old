@@ -1,0 +1,13 @@
+[DEFAULT]
+password :
+db : 0
+
+[Dev]
+host : 127.0.0.1
+port : 7320
+password : password
+
+[Pro]
+host : 127.0.0.1
+port : 7320
+password : password
