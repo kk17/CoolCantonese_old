@@ -71,6 +71,11 @@ class AudioFetcher(object):
 			if not pronounces_mp3:
 				return None
 			else:
+				#判断如果超过60秒截断为60秒，微信允许60秒内语音
+				seconds = len(pronounces_mp3) / 1000
+				if seconds > 60:
+					pronounces_mp3 = pronounces_mp3[:1000*60]
+					logging.info("{0} play time over 60 seconds".format(filename))
 				pronounces_mp3.export(filepath,format="mp3")
 				return filepath
 

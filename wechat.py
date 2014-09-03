@@ -13,10 +13,16 @@ import sys
 reload(sys)
 sys.setdefaultencoding('utf-8')
 
-FORMAT = '%(asctime)-15s  %(message)s'
-logging.basicConfig(format=FORMAT)
+# 创建一个handler，用于输出到控制台  
+ch = logging.StreamHandler()  
+ch.setLevel(logging.DEBUG)  
+FORMAT = '%(asctime)s - %(name)s - %(levelname)s - %(message)s'
+formatter = logging.Formatter(FORMAT)
+ch.setFormatter(formatter)
 
 logger = logging.getLogger("wechat")
+logger.addHandler(ch)
+logger.setLevel(logging.DEBUG)  
 
 config_dir = os.path.dirname(os.path.realpath(__file__))
 
@@ -51,6 +57,7 @@ if enable_redis:
 	mediaid_expire_seconds = eval(cfg.get(args.env, "mediaid_expire_seconds"))
 
 
+subscribe_msg = cfg.get(args.env,"subscribe_msg")
 wav_folder = cfg.get(args.env,"wav_folder")
 mp3_folder = cfg.get(args.env,"mp3_folder")
 words_audio_folder = cfg.get(args.env,"words_audio_folder")
@@ -99,8 +106,6 @@ def get_mediaid(pronounce_list):
 		redis_client.expire(key, mediaid_expire_seconds)
 	return mediaid
 
-	
-		
 
 @robot.text
 def translate(txtMsg):
@@ -123,6 +128,10 @@ def translate(txtMsg):
 	except TranslationException, e:
 		logger.exception(e.message)
 		return e.message	
+	
+@robot.subscribe
+def subscribe(message):
+	return subscribe_msg.decode("utf-8")
 
 robot.run(None,host,port)
 
