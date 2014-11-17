@@ -40,7 +40,9 @@ def get_translation(text):
 	params["srctxt"] = utf8_txt
 	params["RadioGroup1"] = "tocan"
 	data = urllib.urlencode(params)
-	resp = urllib2.urlopen(_traslate_url, data).read()
+	headers = {"Referer":_traslate_url}
+	req = urllib2.Request(_traslate_url, data, headers)
+	resp = urllib2.urlopen(req).read()
 	if resp:
 		result =  pasar_response_text(resp)
 		return result
