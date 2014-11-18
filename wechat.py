@@ -67,27 +67,28 @@ audio_fetcher = AudioFetcher(wav_folder, mp3_folder, words_audio_folder)
 robot = werobot.WeRoBot(token=wechat_token)
 
 def get_cache_translation(content):
-	if enable_redis:
+	result = None
+	if enable_redis and redis_client:
 		key = "tansalation:" + content
 		try:
 			logger.debug("try get cached translation")
 			result = redis_client.get(key)
+			if result:
+				logger.debug("find cached translation")
+			else:
+				logger.debug("no cached translation found")
+				logger.debug("try get translation using %s service" % translation_service)
+				result = get_translation(content,translation_service)
+				if result:
+					redis_client.set(key, result)
+					redis_client.expire(key, translation_expire_seconds)
 		except:
 			logger.exception("get cache translation error")
-		if result:
-			logger.debug("find cached translation")
-			return result
-		else:
-			logger.debug("no cached translation found")
-			logger.debug("try get translation using %s service" % translation_service)
-			result = get_translation(content,translation_service)
-			if result:
-				redis_client.set(key, result)
-				redis_client.expire(key, translation_expire_seconds)
-			return result
-	else:
+
+	if not result:
 		logger.debug("try get translation using %s service" % translation_service)
-		return get_translation(content,translation_service)
+		result = get_translation(content,translation_service)
+	return result
 		
 def get_mediaid(pronounce_list):
 	key = ""
@@ -130,7 +131,7 @@ def translate(txtMsg):
 				client.send_voice_message(userid,mediaid)
 			return result.get_format_result()
 		else:
-			return result.words +"\n\n" + result.get_format_result()
+			return result.get_format_result()
 	except TranslationException, e:
 		logger.exception(e.message)
 		return e.message	

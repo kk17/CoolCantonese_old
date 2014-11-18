@@ -9,8 +9,11 @@ class TranslateResult(object):
 		self.pronounce_list = pronounce_list
 		if self.pronounce_list == None:
 			self.pronounce_list = []
+		self.has_pronounce = False
 
 	def get_format_result(self):
+		if not self.has_pronounce:
+			return self.words
 		words = self.words.decode("utf-8")
 		result = ""
 		for i, w in enumerate(words):
@@ -18,11 +21,13 @@ class TranslateResult(object):
 			pronounce = self.pronounce_list[i]
 			if pronounce:
 				result += "(" + pronounce +")"
-		return result
+		return self.words + "\n\n" + result
 
 	def add(self, word, pronounce):
 		self.words+= word
 		self.pronounce_list.append(pronounce)
+		if pronounce:
+			self.has_pronounce = True
 
 	def __str__(self):
 		return self.get_format_result()
@@ -30,7 +35,7 @@ class TranslateResult(object):
 def main():
 	result = TranslateResult()
 	result.add("我", "ou2")
-	print result
+	print result.get_format_result()
 
 if __name__ == '__main__':
 	main()
