@@ -79,7 +79,7 @@ def get_cache_translation(content):
 			return result
 		else:
 			logger.debug("no cached translation found")
-			logger.debug("try get translation using %s service" translation_service)
+			logger.debug("try get translation using %s service" % translation_service)
 			result = get_translation(content,translation_service)
 			if result:
 				redis_client.set(key, result)
