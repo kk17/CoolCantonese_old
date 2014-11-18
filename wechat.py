@@ -36,6 +36,7 @@ cfg.read(cfg_path)
 
 host = cfg.get(args.env,"host")
 port = cfg.get(args.env,"port")
+translation_service = cfg.get(args.env,"translation_service")
 enable_client = cfg.getboolean(args.env,"enable_client")
 if enable_client:
 	appid = cfg.get(args.env, "appid")
@@ -75,13 +76,13 @@ def get_cache_translation(content):
 		if result:
 			return result
 		else:
-			result = get_translation(content)
+			result = get_translation(content,translation_service)
 			if result:
 				redis_client.set(key, result)
 				redis_client.expire(key, translation_expire_seconds)
 			return result
 	else:
-		return get_translation(content)
+		return get_translation(content,translation_service)
 		
 def get_mediaid(pronounce_list):
 	key = ""

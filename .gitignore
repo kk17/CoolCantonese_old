@@ -6,3 +6,4 @@
 env.cfg
 redis.cfg
 werobot_session
+*.class

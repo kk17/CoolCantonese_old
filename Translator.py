@@ -8,7 +8,7 @@ class TranslationException(Exception):
 	pass
 		
 
-def pasar_response_text_old(data):
+def paser_response_text_l2china(data):
 	soup = bs4.BeautifulSoup(data, "lxml")
 	texts = soup.select("div.generated_text")
 	if texts and len(texts) > 0:
@@ -23,7 +23,7 @@ def pasar_response_text_old(data):
 		return result
 	raise TranslationException("暂无翻译结果")
 
-def pasar_response_text(resp):
+def paser_response_text_baidu(resp):
 	try:
 		node = json.loads(resp)
 	except Exception, e:
@@ -39,16 +39,16 @@ def pasar_response_text(resp):
 			# print dst
 		result_text = result_text + "\n" + dst 
 
-	result_text = result_text[1:] + "(注音功能暂时缺失)"
+	result_text = result_text[1:] + "\n(注音功能暂时缺失)"
 	result = TranslateResult()
 	for c in result_text:
 		result.add(c, None)
 	return result
 
 _traslate_url = "http://www.l2china.com/yueyu/"
-_text_len_limit = 1000
+_text_len_limit = 100
 
-def get_translation_old(text):
+def get_translation_l2china(text):
 	uni = type(text) == unicode
 	if uni:
 		txt_len = len(text)
@@ -62,11 +62,12 @@ def get_translation_old(text):
 	params["srctxt"] = utf8_txt
 	params["RadioGroup1"] = "tocan"
 	data = urllib.urlencode(params)
-	headers = {"Referer":_traslate_url}
+	headers = {}
+	# headers = {"Referer":_traslate_url}
 	req = urllib2.Request(_traslate_url, data, headers)
 	resp = urllib2.urlopen(req).read()
 	if resp:
-		result =  pasar_response_text(resp)
+		result =  paser_response_text_l2china(resp)
 		return result
 	return None
 
@@ -76,16 +77,12 @@ def get_translation_old(text):
 # q	待翻译内容	该字段必须为UTF-8编码，并且以GET方式调用API时，需要进行urlencode编码。
 _baidu_translate_api = "http://openapi.baidu.com/public/2.0/bmt/translate"
 _baidu_translate_client_id = "foAIGL40ZOCv2lrZhnRQ1QCf"
-def get_translation(text):
+def get_translation_baidu(text):
 	uni = type(text) == unicode
 	if uni:
-		txt_len = len(text)
 		utf8_txt = text.encode('utf-8')
 	else:
-		txt_len = len(text.decode('utf-8'))
 		utf8_txt = text
-	if txt_len > _text_len_limit:
-		raise TranslationException("需要翻译的文本超过" + str(_text_len_limit) + "个字符")
 	params = {}
 	params["from"] = "zh"
 	params["to"] = "yue"
@@ -97,13 +94,20 @@ def get_translation(text):
 	req = urllib2.Request(_baidu_translate_api, data, headers)
 	resp = urllib2.urlopen(req).read()
 	if resp:
-		return pasar_response_text(resp)
+		return paser_response_text_baidu(resp)
 	return None
 	
+def get_translation(text,service="l2china"):
+	if "baidu" == service:
+		return get_translation_baidu(text)
+	else:
+		return get_translation_l2china(text)
+
+
 def main():
 	text = """本片讲述一个男孩从6岁到18岁的成长历程，导演理查德·林克莱特花了12
 	ni无法理解，真好"""
-	print get_translation(text)
+	print get_translation(text,"l2china")
 
 if __name__ == '__main__':
 	main()
