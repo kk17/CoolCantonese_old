@@ -8,7 +8,7 @@ class TranslationException(Exception):
 	pass
 		
 
-def pasar_response_text(data):
+def pasar_response_text_old(data):
 	soup = bs4.BeautifulSoup(data, "lxml")
 	texts = soup.select("div.generated_text")
 	if texts and len(texts) > 0:
@@ -22,6 +22,28 @@ def pasar_response_text(data):
 			result.add(word,pronounce)
 		return result
 	raise TranslationException("暂无翻译结果")
+
+def pasar_response_text(resp):
+	try:
+		node = json.loads(resp)
+	except Exception, e:
+		print resp
+		raise e
+
+	trans_result = node["trans_result"]
+	result_text = ""
+	for t in trans_result:
+		dst = t["dst"]
+		if type(dst)==unicode:
+			dst = dst.encode("utf-8")
+			# print dst
+		result_text = result_text + "\n" + dst 
+
+	result_text = result_text[1:] + "(注音功能暂时缺失)"
+	result = TranslateResult()
+	for c in result_text:
+		result.add(c, None)
+	return result
 
 _traslate_url = "http://www.l2china.com/yueyu/"
 _text_len_limit = 1000
@@ -75,20 +97,7 @@ def get_translation(text):
 	req = urllib2.Request(_baidu_translate_api, data, headers)
 	resp = urllib2.urlopen(req).read()
 	if resp:
-		try:
-			node = json.loads(resp)
-		except Exception, e:
-			print resp
-			raise e
-		trans_result = node["trans_result"]
-		result_text = ""
-		for t in trans_result:
-			dst = t["dst"]
-			if type(dst)==unicode:
-				dst = dst.encode("utf-8")
-				# print dst
-			result_text = result_text + "\n" + dst 
-		return result_text[1:]
+		return pasar_response_text(resp)
 	return None
 	
 def main():
