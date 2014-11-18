@@ -86,7 +86,7 @@ def get_cache_translation(content):
 				redis_client.expire(key, translation_expire_seconds)
 			return result
 	else:
-		logger.debug("try get translation using %s service" translation_service)
+		logger.debug("try get translation using %s service" % translation_service)
 		return get_translation(content,translation_service)
 		
 def get_mediaid(pronounce_list):
