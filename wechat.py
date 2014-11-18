@@ -70,18 +70,23 @@ def get_cache_translation(content):
 	if enable_redis:
 		key = "tansalation:" + content
 		try:
+			logger.debug("try get cached translation")
 			result = redis_client.get(key)
 		except:
 			logger.exception("get cache translation error")
 		if result:
+			logger.debug("find cached translation")
 			return result
 		else:
+			logger.debug("no cached translation found")
+			logger.debug("try get translation using %s service" translation_service)
 			result = get_translation(content,translation_service)
 			if result:
 				redis_client.set(key, result)
 				redis_client.expire(key, translation_expire_seconds)
 			return result
 	else:
+		logger.debug("try get translation using %s service" translation_service)
 		return get_translation(content,translation_service)
 		
 def get_mediaid(pronounce_list):
