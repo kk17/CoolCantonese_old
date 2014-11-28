@@ -63,6 +63,8 @@ wav_folder = cfg.get(args.env,"wav_folder")
 mp3_folder = cfg.get(args.env,"mp3_folder")
 words_audio_folder = cfg.get(args.env,"words_audio_folder")
 wechat_token = cfg.get(args.env,"token")
+audio_file_url_prefix = cfg.get(args.env,"audio_file_url_prefix")
+
 audio_fetcher = AudioFetcher(wav_folder, mp3_folder, words_audio_folder)
 robot = werobot.WeRoBot(token=wechat_token)
 
@@ -113,15 +115,62 @@ def get_mediaid(pronounce_list):
 		redis_client.expire(key, mediaid_expire_seconds)
 	return mediaid
 
+def get_audio_url(pronounce_list):
+	audio_filename = audio_fetcher.get_pronounces_mp3(pronounce_list)
+	name = os.path.basename(audio_filename)
+	return audio_file_url_prefix + name
+
+text_menu = """--按要求输入获得相应功能--
+* ：收听电台
+# ：获得上一条翻译的语音
+？：获得帮助
+直接输入文字获得文字翻译
+直接输入#+文字获得文字翻译
+"""
+
+@robot.text("?")
+def get_menu():
+	return text_menu
+
+
+@robot.text("*")
+def get_radio():
+	return [["粤讲粤酷电台","《粤讲粤酷》电台在网易云音乐开播啦！\
+	每期邀请嘉宾以脱口秀的形式教学粤语，希望大家能够在轻松愉快的氛\
+	围中学会粤语。点击下方原文链接即可收听。喜欢的朋友更课使用网易\
+	云音乐客户端订阅电台，这样每期更新都会有提醒哟！",\
+	"http://music.163.com/djradio?id=225001",\
+	"http://cantonese.qiniudn.com/radio.jpg",""]]
+
+@robot.text("#")
+def get_last_translation_audio(txtMsg):
+	userid = txtMsg.source
+	key = userid = "_last_content"
+	content = redis_client.get(key, content)
+	if content:
+		result = get_cache_translation(content) 
+		return get_music_msg(result)
+	else:
+		return "抱歉，找不到上一条消息"
+
+def get_music_msg(result):
+	if result.has_pronounce:
+		url = get_audio_url(result.pronounce_list)
+		return [result.words,result.get_words_with_pronounces(),url]
+	else:
+		return "暂无语音翻译,下面是文字翻译\n" + result.words
 
 @robot.text
 def translate(txtMsg):
 	try:
 		userid = txtMsg.source
-		content = txtMsg.content
+		content = txtMsg.content.trim()
 		if type(content) == unicode:
 			content = content.encode('utf-8')
 		logger.info("revice text message from %s, content: %s" % (userid,content))
+		return_audio = False
+		if content.startswith("#"):
+			content = content[1:]
 		result = get_cache_translation(content) 
 		logger.info("get translation:%s" % result.words)
 		if enable_client:
@@ -130,8 +179,14 @@ def translate(txtMsg):
 			if mediaid:
 				client.send_voice_message(userid,mediaid)
 			return result.get_format_result()
+		else return_audio:
+			return get_music_msg(result)
 		else:
-			return result.get_format_result()
+			key = userid + "_last_content"
+			redis_client.set(key, content)
+			redis_client.expire(key, mediaid_expire_seconds)
+			return result.get_format_result() + "\n--回复#获得语音--"
+
 	except TranslationException, e:
 		logger.exception(e.message)
 		return e.message	
