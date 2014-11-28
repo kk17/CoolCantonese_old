@@ -120,33 +120,36 @@ def get_audio_url(pronounce_list):
 	name = os.path.basename(audio_filename)
 	return audio_file_url_prefix + name
 
-text_menu = """--按要求输入获得相应功能--
+text_menu = """\
+功能：
 * ：收听电台
 # ：获得上一条翻译的语音
 ？：获得帮助
 直接输入文字获得文字翻译
 直接输入#+文字获得文字翻译
-"""
 
-@robot.text("?")
+tips:
+如果语音没有声音，请暂停再播放
+"""
+import re
+
+@robot.filter(re.compile(u"[\?？]"))
 def get_menu():
 	return text_menu
 
 
-@robot.text("*")
+@robot.filter("*")
 def get_radio():
-	return [["粤讲粤酷电台","《粤讲粤酷》电台在网易云音乐开播啦！\
+	return [["《粤讲粤酷》电台","《粤讲粤酷》电台在网易云音乐开播啦！\
 	每期邀请嘉宾以脱口秀的形式教学粤语，希望大家能够在轻松愉快的氛\
-	围中学会粤语。点击下方原文链接即可收听。喜欢的朋友更课使用网易\
+	围中学会粤语。喜欢的朋友更课使用网易\
 	云音乐客户端订阅电台，这样每期更新都会有提醒哟！",\
-	"http://music.163.com/djradio?id=225001",\
-	"http://cantonese.qiniudn.com/radio.jpg",""]]
+	"http://cantonese.qiniudn.com/radio.jpg",\
+	"http://music.163.com/djradio?id=225001"]]
 
-@robot.text("#")
-def get_last_translation_audio(txtMsg):
-	userid = txtMsg.source
-	key = userid = "_last_content"
-	content = redis_client.get(key, content)
+def get_last_translation_audio(userid):
+	key = userid + "_last_content"
+	content = redis_client.get(key)
 	if content:
 		result = get_cache_translation(content) 
 		return get_music_msg(result)
@@ -164,13 +167,16 @@ def get_music_msg(result):
 def translate(txtMsg):
 	try:
 		userid = txtMsg.source
-		content = txtMsg.content.trim()
+		content = txtMsg.content
+		if "#" == content:
+			return get_last_translation_audio(userid)
 		if type(content) == unicode:
 			content = content.encode('utf-8')
 		logger.info("revice text message from %s, content: %s" % (userid,content))
 		return_audio = False
 		if content.startswith("#"):
 			content = content[1:]
+			return_audio = True
 		result = get_cache_translation(content) 
 		logger.info("get translation:%s" % result.words)
 		if enable_client:
@@ -179,12 +185,12 @@ def translate(txtMsg):
 			if mediaid:
 				client.send_voice_message(userid,mediaid)
 			return result.get_format_result()
-		else return_audio:
+		elif return_audio:
 			return get_music_msg(result)
 		else:
 			key = userid + "_last_content"
 			redis_client.set(key, content)
-			redis_client.expire(key, mediaid_expire_seconds)
+			redis_client.expire(key, translation_expire_seconds)
 			return result.get_format_result() + "\n--回复#获得语音--"
 
 	except TranslationException, e:
