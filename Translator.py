@@ -15,14 +15,15 @@ def paser_response_text_l2china(data):
 		result = TranslateResult()
 		span_list = texts[0].select("span")
 		for span in span_list:
-			word = span.text.encode("utf-8")
-			pronounce = span["title"].encode("utf-8")
+			word = span.text
+			pronounce = span["title"]
 			if "null" == pronounce:
 				pronounce = None
 			result.add(word,pronounce)
 		return result
 	raise TranslationException("暂无翻译结果")
 
+import phonetic
 def paser_response_text_baidu(resp):
 	try:
 		node = json.loads(resp)
@@ -39,10 +40,14 @@ def paser_response_text_baidu(resp):
 			# print dst
 		result_text = result_text + "\n" + dst 
 
-	result_text = result_text[1:] + "\n(注音功能暂时缺失)"
+	# print result_text
+	result_text = result_text[1:]
+	r = phonetic.get_notations_result(result_text.decode("utf-8"))
+	print r.plist
 	result = TranslateResult()
-	for c in result_text:
-		result.add(c, None)
+	result.words = r.in_str
+	result.pronounce_list = r.plist
+	result.has_pronounce = True
 	return result
 
 _traslate_url = "http://www.l2china.com/yueyu/"
@@ -105,9 +110,17 @@ def get_translation(text,service="l2china"):
 
 
 def main():
+	import sys
+	reload(sys)
+	sys.setdefaultencoding("utf-8")
 	text = """本片讲述一个男孩从6岁到18岁的成长历程，导演理查德·林克莱特花了12
 	ni无法理解，真好"""
-	print get_translation(text,"l2china")
+
+	# print "-"*50
+	# print get_translation(text)
+
+	print "-"*50
+	print get_translation(text,"baidu")
 
 if __name__ == '__main__':
 	main()

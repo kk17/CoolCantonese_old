@@ -8,7 +8,9 @@ from PickledRedis import PickledRedis
 import os.path
 import logging
 from audio import AudioFetcher
-	
+import phonetic
+from util import to_utf8,to_unicode
+
 import sys
 reload(sys)
 sys.setdefaultencoding('utf-8')
@@ -120,13 +122,15 @@ def get_audio_url(pronounce_list):
 	name = os.path.basename(audio_filename)
 	return audio_file_url_prefix + name
 
-text_menu = """\
+text_menu = u"""\
 功能：
 * ：收听电台
 # ：获得上一条翻译的语音
 ？：获得帮助
-直接输入文字获得文字翻译
-直接输入#+文字获得文字翻译
+输入文字获得文字翻译
+输入#+文字获得语音翻译
+输入单个中文字符获得注音及解析
+输入注音获得语音及对应发音的字
 
 tips:
 如果语音没有声音，请暂停再播放
@@ -137,10 +141,35 @@ import re
 def get_menu():
 	return text_menu
 
+@robot.filter(re.compile(u"[a-z]+\d"))
+def get_chars(txtMsg):
+	content = txtMsg.content
+	print content
+	r = phonetic.get_characters_result(content)
+	if r:
+		try:
+			url = get_audio_url([content])
+			return [content,r.pretty(),url]
+		except Exception, e:
+			logger.exception("get_chars error")
+			return r.pretty()
+		
+	else:
+		return u"暂无解析"
+
+@robot.filter(re.compile(u"[\u4e00-\u9fa5]"))
+def get_pronus(txtMsg):
+	content = txtMsg.content
+	r = phonetic.get_pronunciations_result(content)
+	if r:
+		return r.pretty()
+	else:
+		return u"暂无解析"
+
 
 @robot.filter("*")
 def get_radio():
-	return [["《粤讲粤酷》电台","《粤讲粤酷》电台在网易云音乐开播啦！\
+	return [[u"《粤讲粤酷》电台",u"《粤讲粤酷》电台在网易云音乐开播啦！\
 	每期邀请嘉宾以脱口秀的形式教学粤语，希望大家能够在轻松愉快的氛\
 	围中学会粤语。喜欢的朋友更课使用网易\
 	云音乐客户端订阅电台，这样每期更新都会有提醒哟！",\
@@ -161,7 +190,7 @@ def get_music_msg(result):
 		url = get_audio_url(result.pronounce_list)
 		return [result.words,result.get_words_with_pronounces(),url]
 	else:
-		return "暂无语音翻译,下面是文字翻译\n" + result.words
+		return u"暂无语音翻译,下面是文字翻译\n" + result.words
 
 @robot.text
 def translate(txtMsg):
@@ -170,9 +199,9 @@ def translate(txtMsg):
 		content = txtMsg.content
 		if "#" == content:
 			return get_last_translation_audio(userid)
-		if type(content) == unicode:
-			content = content.encode('utf-8')
-		logger.info("revice text message from %s, content: %s" % (userid,content))
+		# if type(content) == unicode:
+		# 	content = content.encode('utf-8')
+		logger.info("revice text message from %s, content: %s" % (userid,to_utf8(content)))
 		return_audio = False
 		if content.startswith("#"):
 			content = content[1:]
@@ -184,14 +213,18 @@ def translate(txtMsg):
 			mediaid = get_mediaid(result.pronounce_list)
 			if mediaid:
 				client.send_voice_message(userid,mediaid)
-			return result.get_format_result()
+			return result.pretty()
 		elif return_audio:
 			return get_music_msg(result)
 		else:
-			key = userid + "_last_content"
-			redis_client.set(key, content)
-			redis_client.expire(key, translation_expire_seconds)
-			return result.get_format_result() + "\n--回复#获得语音--"
+			if enable_redis and redis_client:
+				key = userid + "_last_content"
+				redis_client.set(key, content)
+				redis_client.expire(key, translation_expire_seconds)
+				return result.pretty() + "\n--回复#获得语音--"
+			else:
+				return result.pretty()
+			
 
 	except TranslationException, e:
 		logger.exception(e.message)
