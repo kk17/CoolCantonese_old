@@ -141,7 +141,7 @@ import re
 def get_menu():
 	return text_menu
 
-@robot.filter(re.compile(u"[a-z]+\d"))
+@robot.filter(re.compile(u"^[a-z]+\d$"))
 def get_chars(txtMsg):
 	content = txtMsg.content
 	print content
@@ -157,14 +157,14 @@ def get_chars(txtMsg):
 	else:
 		return u"暂无解析"
 
-@robot.filter(re.compile(u"[\u4e00-\u9fa5]"))
+@robot.filter(re.compile(u"^[\u4e00-\u9fa5]$"))
 def get_pronus(txtMsg):
 	content = txtMsg.content
 	r = phonetic.get_pronunciations_result(content)
 	if r:
 		return r.pretty()
 	else:
-		return u"暂无解析"
+		return u"暂无解析1"
 
 
 @robot.filter("*")
