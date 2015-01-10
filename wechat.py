@@ -197,8 +197,15 @@ def get_radio():
 def get_radio():
 	return [[u"粤讲粤酷交流论坛",
 	u"欢迎反馈公众号问题，交流粤语学习经验，分享粤语学习资源",
-	"http://dzqun.gtimg.cn/qpanel/images/logo_32.png",
+	"http://dzqun.gtimg.cn/qpanel/images/banner1.jpg",
 	"http://m.wsq.qq.com/264028609"]]
+
+@robot.filter("1")
+def get_radio():
+	return [[u"星爷粉丝大考验",
+	u"听对白答电影，星爷粉丝大考验",
+	"http://7sbpek.com1.z0.glb.clouddn.com/img/radio.jpg",
+	"http://stephen.kkee.tk"]]
 
 def get_last_translation_audio(userid):
 	key = userid + "_last_content"
