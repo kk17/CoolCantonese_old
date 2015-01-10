@@ -204,7 +204,7 @@ def get_radio():
 def get_radio():
 	return [[u"星爷粉丝大考验",
 	u"听对白答电影，星爷粉丝大考验",
-	"http://7sbpek.com1.z0.glb.clouddn.com/img/radio.jpg",
+	"http://7sbpek.com1.z0.glb.clouddn.com/img/stephen.jpg",
 	"http://stephen.kkee.tk"]]
 
 def get_last_translation_audio(userid):
