@@ -162,7 +162,7 @@ def get_chars(txtMsg):
 def cache_user_msg(userid, msg):
 	if enable_redis and redis_client:
 		key = userid + "_last_content"
-		redis_client.set(key, content)
+		redis_client.set(key, msg)
 		redis_client.expire(key, translation_expire_seconds)
 		return True
 	else:
@@ -216,7 +216,7 @@ def get_last_translation_audio(userid):
 			prons = []
 			for p in r.plist:
 				prons.append(p.pronunciation)
-			url = get_audio_url(result.pronounce_list)
+			url = get_audio_url(prons)
 			return [content, ",".join(prons), url]
 		else:
 			result = get_cache_translation(content) 
