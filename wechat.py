@@ -200,7 +200,7 @@ def get_radio():
 	"http://dzqun.gtimg.cn/qpanel/images/banner1.jpg",
 	"http://m.wsq.qq.com/264028609"]]
 
-@robot.filter("1")
+@robot.filter("2")
 def get_radio():
 	return [[u"星爷粉丝大考验",
 	u"听对白答电影，星爷粉丝大考验",
