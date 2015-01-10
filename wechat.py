@@ -127,6 +127,8 @@ text_menu = u"""\
 * ：收听电台
 # ：获得上一条翻译的语音
 ？：获得帮助
+1 ：进入微社区论坛
+2 ：星爷粉丝大考验
 输入文字获得文字翻译
 输入#+文字获得语音翻译
 输入单个中文字符获得注音及解析
@@ -157,33 +159,63 @@ def get_chars(txtMsg):
 	else:
 		return u"暂无解析"
 
-@robot.filter(re.compile(u"^[\u4e00-\u9fa5]$"))
+def cache_user_msg(userid, msg):
+	if enable_redis and redis_client:
+		key = userid + "_last_content"
+		redis_client.set(key, content)
+		redis_client.expire(key, translation_expire_seconds)
+		return True
+	else:
+		return False
+
+chn = re.compile(u"^[\u4e00-\u9fa5]$")
+
+@robot.filter(chn)
 def get_pronus(txtMsg):
+	userid = txtMsg.source
 	content = txtMsg.content
 	r = phonetic.get_pronunciations_result(content)
 	if r:
-		return r.pretty()
+		if cache_user_msg(userid,content):
+			return r.pretty() + u"\n--回复#获得语音--"
+		else:
+			return r.pretty()
 	else:
 		return u"暂无解析1"
 
 
 @robot.filter("*")
 def get_radio():
-	return [[u"《粤讲粤酷》电台",u"《粤讲粤酷》电台在网易云音乐开播啦！\
-	每期邀请嘉宾以脱口秀的形式教学粤语，希望大家能够在轻松愉快的氛\
-	围中学会粤语。喜欢的朋友更课使用网易\
-	云音乐客户端订阅电台，这样每期更新都会有提醒哟！",\
-	"http://cantonese.qiniudn.com/radio.jpg",\
+	return [[u"《粤讲粤酷》电台",
+	u"《粤讲粤酷》电台在网易云音乐开播啦！每期邀请嘉宾以脱口秀的形式教学粤语，"
+	u"希望大家能够在轻松愉快的氛围中学会粤语。喜欢的朋友更课使用网易"
+	u"云音乐客户端订阅电台，这样每期更新都会有提醒哟！",
+	"http://7sbpek.com1.z0.glb.clouddn.com/img/radio.jpg",
 	"http://music.163.com/djradio?id=225001"]]
+
+@robot.filter("1")
+def get_radio():
+	return [[u"粤讲粤酷交流论坛",
+	u"欢迎反馈公众号问题，交流粤语学习经验，分享粤语学习资源",
+	"http://dzqun.gtimg.cn/qpanel/images/logo_32.png",
+	"http://m.wsq.qq.com/264028609"]]
 
 def get_last_translation_audio(userid):
 	key = userid + "_last_content"
 	content = redis_client.get(key)
 	if content:
-		result = get_cache_translation(content) 
-		return get_music_msg(result)
+		if chn.search(content):
+			r = phonetic.get_pronunciations_result(content)
+			prons = []
+			for p in r.plist:
+				prons.append(p.pronunciation)
+			url = get_audio_url(result.pronounce_list)
+			return [content, ",".join(prons), url]
+		else:
+			result = get_cache_translation(content) 
+			return get_music_msg(result)
 	else:
-		return "抱歉，找不到上一条消息"
+		return u"抱歉，找不到上一条消息"
 
 def get_music_msg(result):
 	if result.has_pronounce:
@@ -221,7 +253,7 @@ def translate(txtMsg):
 				key = userid + "_last_content"
 				redis_client.set(key, content)
 				redis_client.expire(key, translation_expire_seconds)
-				return result.pretty() + "\n--回复#获得语音--"
+				return result.pretty() + u"\n--回复#获得语音--"
 			else:
 				return result.pretty()
 			
