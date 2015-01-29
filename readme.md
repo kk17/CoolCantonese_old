@@ -26,6 +26,11 @@ nginx -s reload
 
 ##supervsor
 
+```
+echo_supervisord_conf > /etc/supervisord.conf
+
+echo_supervisord_conf > .local/etc/supervisord.conf
+```
 
 
 [1]:https://www.digitalocean.com/community/tutorials/how-to-install-and-use-redis
