@@ -95,7 +95,9 @@ def get_translation_baidu(text):
 	params["q"] = utf8_txt
 
 	data = urllib.urlencode(params)
-	headers = {"Referer":_baidu_translate_api}
+	print data
+	# headers = {"Referer":_baidu_translate_api}
+	headers = {}
 	req = urllib2.Request(_baidu_translate_api, data, headers)
 	resp = urllib2.urlopen(req).read()
 	if resp:
@@ -113,22 +115,21 @@ def main():
 	import sys
 	reload(sys)
 	sys.setdefaultencoding("utf-8")
-	text = u"""哋嫲嚟噏咗着攞嗰嘢瞓吖啫攰氹冚啱麽嘞啲冧惗嗻抦囖嗮嘥乸憇唓甴\
-曱走嘚嚿嗱揸實啩嚤綿埗唞関聼爲啉漱餸枧踭嗽孜噍喐揞摱掹孭凼馀噖螆绵实芪脷喼嫐氽嚡踎劏"""
-	from codecs import open
-	print "-"*50
-	with open("text3.txt","w","utf-8") as f:
-		for c in text:
-			print repr(c)
-			r = get_translation(c)
-			if r.pronounce_list:
-				f.write("%s\t%s\t\n"%(c,r.pronounce_list[0]))
-			else:
-				f.write("%s\t%s\t\n"%(c,""))
-			# for c,p in zip(r.words,r.pronounce_list):
-				# f.write("%s\t%s\t\n"%(c,p))
-		# print "-"*50
-		# print get_translation(text,"baidu")
+	text = u"""哋嫲嚟噏咗着攞嗰嘢瞓吖啫攰氹冚"""
+	# from codecs import open
+	# print "-"*50
+	# with open("text3.txt","w","utf-8") as f:
+	# 	for c in text:
+	# 		print repr(c)
+	# 		r = get_translation(c)
+	# 		if r.pronounce_list:
+	# 			f.write("%s\t%s\t\n"%(c,r.pronounce_list[0]))
+	# 		else:
+	# 			f.write("%s\t%s\t\n"%(c,""))
+	# 		# for c,p in zip(r.words,r.pronounce_list):
+	# 			# f.write("%s\t%s\t\n"%(c,p))
+	# 	# print "-"*50
+	print get_translation(text,"baidu")
 	
 	print "end"
 
