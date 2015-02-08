@@ -13,7 +13,7 @@ class AudioFetcher(object):
 	def __init__(self,wav_folder="wav",mp3_folder="mp3",words_audio_folder="words_audio"):
 		super(AudioFetcher, self).__init__()
 		#_url_prefix = "http://www.l2china.com/yueyu/sounds/"
-		self.url_prefixs = ["http://humanum.arts.cuhk.edu.hk/Lexis/lexi-can/sound/","http://www.yueyv.cn/sound/"]
+		self.url_prefixs = ["http://www.yueyv.cn/sound/","http://humanum.arts.cuhk.edu.hk/Lexis/lexi-can/sound/"]
 		self.wav_folder = wav_folder
 		self.mp3_folder = mp3_folder
 		self.words_audio_folder = words_audio_folder

@@ -117,19 +117,20 @@ def main():
 曱走嘚嚿嗱揸實啩嚤綿埗唞関聼爲啉漱餸枧踭嗽孜噍喐揞摱掹孭凼馀噖螆绵实芪脷喼嫐氽嚡踎劏"""
 	from codecs import open
 	print "-"*50
-	with open("text3.txt","w","utf-8") as f:
-		for c in text:
-			print repr(c)
-			r = get_translation(c)
-			if r.pronounce_list:
-				f.write("%s\t%s\t\n"%(c,r.pronounce_list[0]))
-			else:
-				f.write("%s\t%s\t\n"%(c,""))
+#	with open("text3.txt","w","utf-8") as f:
+		#for c in text:
+		#	print repr(c)
+		#	r = get_translation(c)
+		#	if r.pronounce_list:
+		#		f.write("%s\t%s\t\n"%(c,r.pronounce_list[0]))
+		#	else:
+		#		f.write("%s\t%s\t\n"%(c,""))
 			# for c,p in zip(r.words,r.pronounce_list):
 				# f.write("%s\t%s\t\n"%(c,p))
 		# print "-"*50
-		# print get_translation(text,"baidu")
 	
+	#print get_translation(text,"baidu")
+	print get_translation(text)
 	print "end"
 
 if __name__ == '__main__':
