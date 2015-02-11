@@ -131,6 +131,8 @@ def main():
 	# 	# print "-"*50
 	print get_translation(text,"baidu")
 	
+	#print get_translation(text,"baidu")
+	print get_translation(text)
 	print "end"
 
 if __name__ == '__main__':
