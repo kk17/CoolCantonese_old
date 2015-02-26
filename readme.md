@@ -6,13 +6,18 @@
 redis.conf
 requirepass h~||..-9Y3|r5|BqZJD=;B+G+Yj58j_S
 
+```
+[9005] 08 Feb 15:48:20.704 # Server started, Redis version 2.8.9
+[9005] 08 Feb 15:48:20.704 # WARNING overcommit_memory is set to 0! Background save may fail under low memory condition. To fix this issue add 'vm.overcommit_memory = 1' to /etc/sysctl.conf and then reboot or run the command 'sysctl vm.overcommit_memory=1' for this to take effect.[9005] 08 Feb 15:48:20.705 * The server is now ready to accept connections on port 6379
+```
+
 ###nginx:
 
 ```
 server {
     server_name _;
     listen 9090;
-    root /home/kk17/Cantonese/words_audio;
+    root /home/kk17/Cantonese_audio/words_audio;
     
     location ~* \.(gif|jpg|png|mp3)$ {
     expires 30d;
@@ -67,6 +72,10 @@ echo_supervisord_conf > .local/etc/supervisord.conf
 files = /etc/supervisor/*.ini
 ```
 
+deb http://ppa.launchpad.net/hgneng/ekho/ubuntu precise main 
+
+[Ekho(余音) - 中文语音合成软件(支持粤语、普通话)](http://www.eguidedog.net/cn/ekho_cn.php)
+[Howto add PPA in debian](https://blog.anantshri.info/howto-add-ppa-in-debian/)
 
 [1]:https://www.digitalocean.com/community/tutorials/how-to-install-and-use-redis
 [2]:http://xvfeng.me/posts/Nginx-for-developers/

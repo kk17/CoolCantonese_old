@@ -1,0 +1,13 @@
+wechat:
+	images: kk17/coolcantonese
+	command: python wechat.py
+	ports:
+		- "8888:8888"
+	volumes:
+		- .:/Cantonese
+		- /Cantonese_audio
+	links:
+		- redis
+
+redis:
+	images: redis
