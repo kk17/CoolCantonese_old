@@ -9,7 +9,7 @@ import os.path
 import logging
 from audio import AudioFetcher
 import phonetic
-from util import to_utf8,to_unicode
+from util import to_utf8,to_unicode,check_create_dir
 
 import sys
 reload(sys)
@@ -62,8 +62,11 @@ if enable_redis:
 
 subscribe_msg = cfg.get(args.env,"subscribe_msg")
 wav_folder = cfg.get(args.env,"wav_folder")
+check_create_dir(wav_folder)
 mp3_folder = cfg.get(args.env,"mp3_folder")
+check_create_dir(mp3_folder)
 words_audio_folder = cfg.get(args.env,"words_audio_folder")
+check_create_dir(words_audio_folder)
 wechat_token = cfg.get(args.env,"token")
 audio_file_url_prefix = cfg.get(args.env,"audio_file_url_prefix")
 

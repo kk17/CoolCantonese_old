@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # -*- coding:utf-8 -*-	
 
-import urllib2
+import urllib2,os.path
 
 def to_utf8(in_str):
 	return in_str.encode("utf-8")
@@ -32,3 +32,7 @@ def urlretrieve(url,filepath):
 			f.write(data)
 		else:
 			raise Exception("File size is zero")
+
+def check_create_dir(directory):
+	if not os.path.exists(directory):
+   		os.makedirs(directory)
