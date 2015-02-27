@@ -11,7 +11,10 @@ RUN \
   apt-get -qqy install ekho
 
 # Install libav.
-RUN apt-get -qqy install libav-tools
+RUN \
+  sed -i '/^#.*multiverse$/s/^#\s*//' /etc/apt/sources.list && \
+  apt-get update && \
+  apt-get -qqy install libav-tools libavcodec-extra-53
 
 # Install Python.
 RUN \
