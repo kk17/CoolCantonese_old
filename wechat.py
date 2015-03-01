@@ -134,6 +134,11 @@ def get_audio_url(result):
 	name = os.path.basename(audio_filename)
 	return audio_file_url_prefix + name
 
+def get_audio_url2(pronounce_list):
+	audio_filename = audio_fetcher.get_pronounces_mp3(pronounce_list)
+	name = os.path.basename(audio_filename)
+	return audio_file_url_prefix + name
+
 text_menu = u"""\
 功能：
 * ：收听电台
@@ -228,7 +233,7 @@ def get_last_translation_audio(userid):
 			prons = []
 			for p in r.plist:
 				prons.append(p.pronunciation)
-			url = get_audio_url(prons)
+			url = get_audio_url2(prons)
 			return [content, ",".join(prons), url]
 		else:
 			result = get_cache_translation(content) 
