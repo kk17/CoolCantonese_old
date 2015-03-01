@@ -10,6 +10,7 @@ import logging
 from audio import AudioFetcher
 import phonetic
 from util import to_utf8,to_unicode,check_create_dir
+from ekho import Ekho
 
 import sys
 reload(sys)
@@ -70,6 +71,11 @@ check_create_dir(words_audio_folder)
 wechat_token = cfg.get(args.env,"token")
 audio_file_url_prefix = cfg.get(args.env,"audio_file_url_prefix")
 
+ekho = None
+enable_ekho = cfg.getboolean(args.env,"enable_ekho")
+if enable_ekho:
+	ekho = Ekho(words_audio_folder)
+
 audio_fetcher = AudioFetcher(wav_folder, mp3_folder, words_audio_folder)
 robot = werobot.WeRoBot(token=wechat_token)
 
@@ -120,8 +126,11 @@ def get_mediaid(pronounce_list):
 		redis_client.expire(key, mediaid_expire_seconds)
 	return mediaid
 
-def get_audio_url(pronounce_list):
-	audio_filename = audio_fetcher.get_pronounces_mp3(pronounce_list)
+def get_audio_url(result):
+	if ekho:
+		audio_filename = ekho.get_pronounces_mp3(result)
+	else:
+		audio_filename = audio_fetcher.get_pronounces_mp3(result.pronounce_list)
 	name = os.path.basename(audio_filename)
 	return audio_file_url_prefix + name
 
@@ -214,7 +223,7 @@ def get_last_translation_audio(userid):
 	key = userid + "_last_content"
 	content = redis_client.get(key)
 	if content:
-		if chn.search(content):
+		if chn.search(content): #单个汉字
 			r = phonetic.get_pronunciations_result(content)
 			prons = []
 			for p in r.plist:
@@ -229,7 +238,7 @@ def get_last_translation_audio(userid):
 
 def get_music_msg(result):
 	if result.has_pronounce:
-		url = get_audio_url(result.pronounce_list)
+		url = get_audio_url(result)
 		return [result.words,result.get_words_with_pronounces(),url]
 	else:
 		return u"暂无语音翻译,下面是文字翻译\n" + result.words

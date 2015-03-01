@@ -4,7 +4,6 @@
 import urllib,os.path,os,logging
 from pydub import AudioSegment
 from pydub.effects import speedup
-import ConfigParser
 from util import urlretrieve
 
 class AudioFetcher(object):
