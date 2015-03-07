@@ -1,6 +1,6 @@
 wechat:
   image: kk17/coolcantonese
-  command: python wechat.py
+  entrypoint: /Cantonese/wechat.py
   ports:
     - "80:8888"
   volumes:
