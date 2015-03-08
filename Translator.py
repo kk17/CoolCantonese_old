@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-from TranslateResult import TranslateResult
+from translate_result import TranslateResult
 import urllib,urllib2,bs4,json
 
 class TranslationException(Exception):
@@ -81,8 +81,7 @@ def get_translation_l2china(text):
 # client_id	开发者在百度开发者中心注册得到的授权API key	请阅读如何获取api keyhttp://developer.baidu.com/console#app/project
 # q	待翻译内容	该字段必须为UTF-8编码，并且以GET方式调用API时，需要进行urlencode编码。
 _baidu_translate_api = "http://openapi.baidu.com/public/2.0/bmt/translate"
-_baidu_translate_client_id = "foAIGL40ZOCv2lrZhnRQ1QCf"
-def get_translation_baidu(text):
+def get_translation_baidu(text, client_id):
 	uni = type(text) == unicode
 	if uni:
 		utf8_txt = text.encode('utf-8')
@@ -91,7 +90,7 @@ def get_translation_baidu(text):
 	params = {}
 	params["from"] = "zh"
 	params["to"] = "yue"
-	params["client_id"] = _baidu_translate_client_id
+	params["client_id"] = client_id
 	params["q"] = utf8_txt
 
 	data = urllib.urlencode(params)
@@ -104,9 +103,9 @@ def get_translation_baidu(text):
 		return paser_response_text_baidu(resp)
 	return None
 	
-def get_translation(text,service="l2china"):
+def get_translation(text,service="l2china",baidu_translate_client_id=None):
 	if "baidu" == service:
-		return get_translation_baidu(text)
+		return get_translation_baidu(text, baidu_translate_client_id)
 	else:
 		return get_translation_l2china(text)
 

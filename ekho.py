@@ -13,6 +13,9 @@ class Ekho(object):
 		
 	def export_pronounces_wav(self, wavfilepath, words):
 		return sh.ekho("-v", "Cantonese", "-o", wavfilepath, words)
+
+	def export_pronounces_mp3(self, mpefilepath, words):
+		return sh.ekho("-v", "Cantonese", "-t", "mp3", "-o", mpefilepath, words)
 	
 	def get_pronounces_mp3(self, result, playback_speed=None):
 		pronounce_list = result.pronounce_list
@@ -29,23 +32,17 @@ class Ekho(object):
 		if mp3_exist:
 			return mp3filepath
 		else:
-			wavfilepath = filepath+".wav"
-			wav_exist = os.path.isfile(wavfilepath)
-			if not wav_exist:
-				self.export_pronounces_wav(wavfilepath, words)
-
-			wavAudio = AudioSegment.from_wav(wavfilepath)
-			wavAudio.export(mp3filepath, format="mp3")
+			self.export_pronounces_mp3(mp3filepath, words)
 
 			if playback_speed:
-				mp3Audio = AudioSegment.from_wav(mp3filepath)
+				mp3Audio = AudioSegment.from_mp3(mp3filepath)
 				mp3Audio = speedup(mp3Audio,playback_speed)
 				mp3Audio.export(mp3filepath, format="mp3")
 			return mp3filepath
 
 def main():
 	ekho = Ekho(".")
-	r = ekho.export_pronounces_wav("test.wav",u"我喜欢你")
+	r = ekho.export_pronounces_mp3("test.mp3",u"我喜欢你")
 	print r
 
 if __name__ == '__main__':
