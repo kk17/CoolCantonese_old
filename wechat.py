@@ -226,13 +226,13 @@ def translate(txtMsg):
 	try:
 		userid = txtMsg.source
 		content = txtMsg.content
-		if "#" == content:
+		if "#" == content or u"＃" == content:
 			return get_last_translation_audio(userid)
 		# if type(content) == unicode:
 		# 	content = content.encode('utf-8')
 		logger.info("revice text message from %s, content: %s" % (userid,to_utf8(content)))
 		return_audio = False
-		if content.startswith("#"):
+		if content.startswith("#") or content.startswith(u"＃"):
 			content = content[1:]
 			return_audio = True
 		result = get_cache_translation(content) 
