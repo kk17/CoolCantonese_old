@@ -1,5 +1,15 @@
-##部署：
+#粤讲粤酷微信公众号工程
+![粤讲粤酷](data/qrcode.jpg)
 
+
+##配置
+参考configs目录下的`env.cfg.example`和`redis.cfg.example`文件生成`env.cfg`和`redis.cfg`
+
+##部署：
+##使用docker部署
+需要安装docker和fig，然后在工程目录下运行`sudo fig up`
+
+##本机部署：
 ###安装Redis
 [参考][1]
 配置：
@@ -79,3 +89,6 @@ deb http://ppa.launchpad.net/hgneng/ekho/ubuntu precise main
 
 [1]:https://www.digitalocean.com/community/tutorials/how-to-install-and-use-redis
 [2]:http://xvfeng.me/posts/Nginx-for-developers/
+
+##测试
+推荐使用[ushuz/weixin-simulator](https://github.com/ushuz/weixin-simulator)进行测试
