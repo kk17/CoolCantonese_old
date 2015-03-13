@@ -222,10 +222,21 @@ def get_music_msg(result):
 		return u"暂无语音翻译,下面是文字翻译\n" + result.words
 
 @robot.text
-def translate(txtMsg):
+def handle_text_msg(txtMsg):
+	userid = txtMsg.source
+	content = txtMsg.content
+	return translate(userid, content)
+
+
+@robot.voice
+def handle_voice_msg(voiceMsg):
+	userid = voiceMsg.source
+	content = voiceMsg.recognition
+	return translate(userid, content)
+
+
+def translate(userid, content):
 	try:
-		userid = txtMsg.source
-		content = txtMsg.content
 		if "#" == content or u"＃" == content:
 			return get_last_translation_audio(userid)
 		# if type(content) == unicode:
