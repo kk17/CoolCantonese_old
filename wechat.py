@@ -129,22 +129,12 @@ text_menu = u"""\
 tips:
 如果语音没有声音，请暂停再播放
 """
-
 article_menu = [
-	[u"菜单", u"""\
-发送语音获得文字翻译
-输入文字获得文字翻译
-输入#+文字获得语音翻译
-输入单个中文字符获得注音及解析
-输入注音获得语音及对应发音的字""",
-	"http://7sbpek.com1.z0.glb.clouddn.com/img/stephen.jpg",
-	"http://stephen.kkee.tk"],
-	[u"电台",
-	 u"收听电台",
+	[ "","","http://7sbpek.com1.z0.glb.clouddn.com/img/menu2.png",""],
+	[u"收听《粤讲粤酷》电台","",
 	 "http://7sbpek.com1.z0.glb.clouddn.com/img/radio.jpg",
 	 "http://music.163.com/djradio?id=225001"],
-	[u"星爷粉丝大考验",
-	u"听对白答电影，星爷粉丝大考验",
+	[u"听电影答对白，星爷粉丝大考验","",
 	"http://7sbpek.com1.z0.glb.clouddn.com/img/stephen.jpg",
 	"http://stephen.kkee.tk"],
 	[u"粤讲粤酷交流论坛",
@@ -156,11 +146,11 @@ article_menu = [
 
 @robot.filter(re.compile(u"[\?？]"))
 def get_menu():
-	return text_menu
+	return article_menu
 
 @robot.filter(re.compile(u"[!！]"))
-def get_article_menu():
-	return article_menu
+def get_menu2():
+	return text_menu
 
 @robot.filter(re.compile(u"^[a-z]+\d$"))
 def get_chars(txtMsg):
