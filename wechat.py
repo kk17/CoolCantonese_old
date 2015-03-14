@@ -225,6 +225,15 @@ def get_music_msg(result):
 def handle_text_msg(txtMsg):
 	userid = txtMsg.source
 	content = txtMsg.content
+	logger.info("revice text message from %s, content: %s" % (userid,to_utf8(content)))
+	return translate(userid, content)
+
+
+@robot.voice
+def handle_voice_msg(voiceMsg):
+	userid = voiceMsg.source
+	content = voiceMsg.recognition
+	logger.info("revice voice message from %s, recognition content: %s" % (userid,to_utf8(content)))
 	if content is None:
 		return u"无法识别语音"
 	reply = translate(userid, content)
@@ -233,20 +242,13 @@ def handle_text_msg(txtMsg):
 	return reply
 
 
-@robot.voice
-def handle_voice_msg(voiceMsg):
-	userid = voiceMsg.source
-	content = voiceMsg.recognition
-	return translate(userid, content)
-
-
 def translate(userid, content):
 	try:
 		if "#" == content or u"＃" == content:
 			return get_last_translation_audio(userid)
 		# if type(content) == unicode:
 		# 	content = content.encode('utf-8')
-		logger.info("revice text message from %s, content: %s" % (userid,to_utf8(content)))
+
 		return_audio = False
 		if content.startswith("#") or content.startswith(u"＃"):
 			content = content[1:]
