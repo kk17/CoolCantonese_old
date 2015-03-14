@@ -130,7 +130,7 @@ tips:
 如果语音没有声音，请暂停再播放
 """
 article_menu = [
-	[ "","","http://7sbpek.com1.z0.glb.clouddn.com/img/menu2.png",""],
+	[ "","","http://7sbpek.com1.z0.glb.clouddn.com/img/menu5.png",""],
 	[u"收听《粤讲粤酷》电台","",
 	 "http://7sbpek.com1.z0.glb.clouddn.com/img/radio.jpg",
 	 "http://music.163.com/djradio?id=225001"],
