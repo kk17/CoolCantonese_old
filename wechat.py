@@ -225,7 +225,12 @@ def get_music_msg(result):
 def handle_text_msg(txtMsg):
 	userid = txtMsg.source
 	content = txtMsg.content
-	return translate(userid, content)
+	if content is None:
+		return u"无法识别语音"
+	reply = translate(userid, content)
+	if type(reply) == unicode:
+		return "%s\n-----\n%s" % (content, reply)
+	return reply
 
 
 @robot.voice
