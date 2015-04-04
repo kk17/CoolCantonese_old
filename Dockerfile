@@ -5,5 +5,5 @@ ENV REFRESHED_AT 2015-4-4
 #copy codes
 COPY ./ /Cantonese
 
-ENTRYPOINT []
-CMD []
+ENTRYPOINT ["python"]
+CMD ["wechat.py"]
