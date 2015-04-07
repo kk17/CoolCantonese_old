@@ -5,5 +5,7 @@ ENV REFRESHED_AT 2015-4-7
 #copy codes
 COPY ./ /Cantonese
 
+EXPOSE 80
+
 ENTRYPOINT ["python"]
 CMD ["wechat.py", "-e", "Pro"]

@@ -5,10 +5,11 @@ services:
 
 # using default docker-link env
 env:
-    - WECHAT_TOKEN=
-    - BAIDU_TRANSLATE_CLIENT_ID=
-    - QINIU_ACCESS_KEY=
-    - QINIU_SECRET_KEY=
+  - WECHAT_TOKEN=
+  - BAIDU_TRANSLATE_CLIENT_ID=
+  - QINIU_ACCESS_KEY=
+  - QINIU_SECRET_KEY=
+  - ENABLE_REDIS = false
 
 script:
 

@@ -2,7 +2,6 @@ werobot>=0.6.0
 pydub>=0.9.5
 phonetic>=0.0.3
 beautifulsoup4>=4.3.2
-lxml>=3.4.2
 redis>=2.10.3
 sh>=1.0.8
 qiniu>=7.0.3
