@@ -1,9 +1,9 @@
 FROM kk17/coolcantonese
 MAINTAINER Zhike Chan "zk.chan007@gmail.com"
-ENV REFRESHED_AT 2015-4-4
+ENV REFRESHED_AT 2015-4-7
 
 #copy codes
 COPY ./ /Cantonese
 
 ENTRYPOINT ["python"]
-CMD ["wechat.py"]
+CMD ["wechat.py", "-e", "Pro"]
