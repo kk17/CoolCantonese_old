@@ -10,6 +10,7 @@ env:
   - QINIU_ACCESS_KEY=
   - QINIU_SECRET_KEY=
   - ENABLE_REDIS = false
+  - ENABLE_QINIU = false
 
 script:
 
