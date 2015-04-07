@@ -18,22 +18,15 @@ class Ekho(object):
 		return sh.ekho("-v", "Cantonese", "-t", "mp3", "-o", mpefilepath, words)
 	
 	def get_pronounces_mp3(self, result, playback_speed=None):
-		pronounce_list = result.pronounce_list
-		words = result.words
-		filename = ""
-		for pronounce in pronounce_list:
-			if pronounce:
-				filename += pronounce
-		if "" == filename:
+		mp3_filename = result.get_filename()
+		if mp3_filename is None:
 			return None	
-		filepath = os.path.join(self.words_audio_folder,filename)
-		mp3filepath = filepath+".mp3"
+		mp3filepath = os.path.join(self.words_audio_folder,mp3_filename)
 		mp3_exist = os.path.isfile(mp3filepath)
 		if mp3_exist:
 			return mp3filepath
 		else:
-			self.export_pronounces_mp3(mp3filepath, words)
-
+			self.export_pronounces_mp3(mp3filepath, result.words)
 			if playback_speed:
 				mp3Audio = AudioSegment.from_mp3(mp3filepath)
 				mp3Audio = speedup(mp3Audio,playback_speed)

@@ -1,0 +1,21 @@
+image: kk17/coolcantonese
+
+services:
+  - coolcantonese_redis
+
+# using default docker-link env
+env:
+    - WECHAT_TOKEN=
+    - BAIDU_TRANSLATE_CLIENT_ID=
+    - QINIU_ACCESS_KEY=
+    - QINIU_SECRET_KEY=
+
+script:
+
+
+notify:
+  email:
+    recipients:
+      - zk.chan007@gmail.com
+    on_success: on
+    on_failure: off

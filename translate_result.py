@@ -32,6 +32,16 @@ class TranslateResult(object):
 		if pronounce:
 			self.has_pronounce = True
 
+	def get_filename(self, ext=".mp3"):
+		filename = ""
+		for pronounce in self.pronounce_list:
+			if pronounce:
+				filename += pronounce
+		if "" == filename:
+			return None
+		filename += ext
+		return filename	
+
 	def __str__(self):
 		return self.pretty().encode("utf-8")
 

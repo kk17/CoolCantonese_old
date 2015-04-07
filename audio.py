@@ -5,18 +5,56 @@ import urllib,os.path,os,logging
 from pydub import AudioSegment
 from pydub.effects import speedup
 from util import urlretrieve
+from qiniu_storage import QiniuStorage
+
+
 
 class AudioFetcher(object):
 	logger = logging.getLogger("wechat")
 
-	def __init__(self,wav_folder="wav",mp3_folder="mp3",words_audio_folder="words_audio"):
+	def __init__(self, cfg):
 		super(AudioFetcher, self).__init__()
+		self.ekho = None
+		if cfg.enable_ekho:
+			from ekho import Ekho
+			self.ekho = Ekho(cfg.words_audio_folder)
+		self.qiniq = None
+		if cfg.enable_qiniu:
+			self.qiniu = QiniuStorage(cfg)
+
+		# wav_folder="wav",mp3_folder="mp3",words_audio_folder="words_audio"
 		#_url_prefix = "http://www.l2china.com/yueyu/sounds/"
 		self.url_prefixs = ["http://www.yueyv.cn/sound/","http://humanum.arts.cuhk.edu.hk/Lexis/lexi-can/sound/"]
-		self.wav_folder = wav_folder
-		self.mp3_folder = mp3_folder
-		self.words_audio_folder = words_audio_folder
+		self.wav_folder = cfg.wav_folder
+		self.mp3_folder = cfg.mp3_folder
+		self.words_audio_folder = cfg.words_audio_folder
+		self.audio_file_url_prefix = cfg.audio_file_url_prefix
+
+
+	def get_result_audio_url(self, result):
+		if self.qiniu:
+			url = self.qiniu.check_existance_and_get_url(result.get_filename())
+			if url:
+				return url
+		if self.ekho:
+			audio_filepath = self.ekho.get_pronounces_mp3(result)
+		else:
+			audio_filepath = self.get_pronounces_mp3(result.pronounce_list)
 		
+		if self.qiniu:
+			return self.qiniu.upload_and_get_url(audio_filepath)
+		else:
+			name = os.path.basename(audio_filepath)	
+			return self.audio_file_url_prefix + name
+	
+	def get_pronounces_audio_url(self, pronounce_list):
+		audio_filepath = self.get_pronounces_mp3(pronounce_list)
+		if self.qiniu:
+			return self.qiniu.upload_and_get_url(audio_filepath)
+		else:
+			name = os.path.basename(audio_filepath)
+			return cfg.audio_file_url_prefix + name
+
 	def download_pronounce_file(self, pronounce):
 		for url_prefix in self.url_prefixs:
 			try:
@@ -96,10 +134,15 @@ class AudioFetcher(object):
 
 
 def main():
-	fetcher = AudioFetcher()
-	pronounces = ["hou2",None,"sai1","lei6","haa1","mo2"]
-	filepath = fetcher.get_pronounces_mp3(pronounces)
-	print filepath
+	from wechat_config import WechatConfig
+	cfg = WechatConfig("Dev", "configs/env.cfg")
+	fetcher = AudioFetcher(cfg)
+	# pronounces = ["hou2",None,"sai1","lei6","haa1","mo2"]
+	pronounces = ["hou2"]
+	# filepath = fetcher.get_pronounces_mp3(pronounces)
+	# print filepath
+	url = fetcher.get_pronounces_audio_url(pronounces)
+	print url
 
 def main2():
 	home = "D:\\cantonese_data"
@@ -111,4 +154,4 @@ def main2():
 	filepath = fetcher.get_pronounces_mp3(pronounces)
 	print filepath
 if __name__ == "__main__":
-	main2()
+	main()

@@ -1,9 +1,14 @@
 wechat:
   image: kk17/coolcantonese
+  environment:
+    - WECHAT_TOKEN=R1A5ZtDqm7OrpFa9xPKsu
+    - BAIDU_TRANSLATE_CLIENT_ID=foAIGL40ZOCv2lrZhnRQ1QCf
+    - QINIU_ACCESS_KEY=DKGr6URLzvjjfiG0M55N9LM3X3S-FF4zoirJPaPL
+    - QINIU_SECRET_KEY=qRlx8GbHGPQ_2iOcjJxcjyB1cdAb3p0Cb4mucaDA
   entrypoint: python
-  command: wechat.py
+  command: wechat.py -e Pro
   ports:
-    - "80:8888"
+    - "80:80"
   volumes:
     - .:/Cantonese
     - /Cantonese_audio
@@ -13,11 +18,11 @@ wechat:
 redis:
   image: redis
 
-nginx:
-  image: nginx
-  volumes_from:
-    - wechat
-  volumes:
-    - configs/nginx.conf:/etc/nginx/nginx.conf:ro
-  ports:
-    - "9090:9090"
+#nginx:
+#  image: nginx
+#  volumes_from:
+#    - wechat
+#  volumes:
+#    - configs/nginx.conf:/etc/nginx/nginx.conf:ro
+#  ports:
+#    - "9090:9090"

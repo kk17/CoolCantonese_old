@@ -11,7 +11,6 @@ import logging
 from audio import AudioFetcher
 import phonetic
 from util import to_utf8,to_unicode
-from ekho import Ekho
 import re
 import sys
 
@@ -30,12 +29,16 @@ logger.addHandler(ch)
 logger.setLevel(logging.DEBUG)  
 
 parser = argparse.ArgumentParser(description="Cantonese Tranlation Wechat Robot")
-parser.add_argument("-e", "--env", help = "set environment, default value is 'Dev'.", default = "Dev", metavar = "ENV")
+parser.add_argument("-e", "--env", help = "set environment, default value is 'Dev'.", 
+	default = "Dev", metavar = "ENV")
+parser.add_argument("-f", "--config_file",
+	help = "config file, default value is 'configs/wechat.conf'.",
+	default = "configs/wechat.conf", metavar = "FILE")
 
 args = parser.parse_args()
 
-config_dir = os.path.join(os.path.dirname(os.path.realpath(__file__)), "configs")
-cfg = WechatConfig(args.env, os.path.join(config_dir, "env.cfg"), os.path.join(config_dir, "redis.cfg"))
+config_filepath = os.path.join(os.path.dirname(os.path.realpath(__file__)), args.config_file)
+cfg = WechatConfig(args.env, config_filepath)
 
 client = None
 if cfg.enable_client:
@@ -45,12 +48,7 @@ redis_client = None
 if cfg.enable_redis:
 	redis_client = PickledRedis(cfg.redis_host,cfg.redis_port, cfg.redis_db,cfg.redis_password)
 
-
-ekho = None
-if cfg.enable_ekho:
-	ekho = Ekho(cfg.words_audio_folder)
-
-audio_fetcher = AudioFetcher(cfg.wav_folder, cfg.mp3_folder, cfg.words_audio_folder)
+audio_fetcher = AudioFetcher(cfg)
 robot = werobot.WeRoBot(token=cfg.wechat_token)
 
 def get_cache_translation(content):
@@ -100,18 +98,6 @@ def get_mediaid(pronounce_list):
 		redis_client.expire(key, cfg.mediaid_expire_seconds)
 	return mediaid
 
-def get_audio_url(result):
-	if ekho:
-		audio_filename = ekho.get_pronounces_mp3(result)
-	else:
-		audio_filename = audio_fetcher.get_pronounces_mp3(result.pronounce_list)
-	name = os.path.basename(audio_filename)
-	return cfg.audio_file_url_prefix + name
-
-def get_audio_url2(pronounce_list):
-	audio_filename = audio_fetcher.get_pronounces_mp3(pronounce_list)
-	name = os.path.basename(audio_filename)
-	return cfg.audio_file_url_prefix + name
 
 text_menu = u"""\
 功能：
@@ -159,7 +145,7 @@ def get_chars(txtMsg):
 	r = phonetic.get_characters_result(content)
 	if r:
 		try:
-			url = get_audio_url([content])
+			url = audio_fetcher.get_result_audio_url([content])
 			return [content,r.pretty(),url]
 		except Exception, e:
 			logger.exception("get_chars error")
@@ -225,7 +211,7 @@ def get_last_translation_audio(userid):
 			prons = []
 			for p in r.plist:
 				prons.append(p.pronunciation)
-			url = get_audio_url2(prons)
+			url = audio_fetcher.get_pronounces_audio_url(prons)
 			return [content, ",".join(prons), url]
 		else:
 			result = get_cache_translation(content) 
@@ -235,7 +221,7 @@ def get_last_translation_audio(userid):
 
 def get_music_msg(result):
 	if result.has_pronounce:
-		url = get_audio_url(result)
+		url = audio_fetcher.get_result_audio_url(result)
 		return [result.words,result.get_words_with_pronounces(),url]
 	else:
 		return u"暂无语音翻译,下面是文字翻译\n" + result.words
