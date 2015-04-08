@@ -122,11 +122,7 @@ article_menu = [
 	 "http://music.163.com/djradio?id=225001"],
 	[u"听电影答对白，星爷粉丝大考验","",
 	"http://7sbpek.com1.z0.glb.clouddn.com/img/stephen.jpg",
-	"http://stephen.kkee.tk"],
-	[u"粤讲粤酷交流论坛",
-	u"欢迎反馈公众号问题，交流粤语学习经验，分享粤语学习资源",
-	"http://dzqun.gtimg.cn/qpanel/images/banner1.jpg",
-	"http://m.wsq.qq.com/264028609"]
+	"http://stephen.kkee.tk"]
 ]
 
 
