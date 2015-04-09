@@ -33,7 +33,7 @@ class WechatConfig(object):
 		self.enable_redis = self.__get_bool_from_env_or_config("ENABLE_REDIS","enable_redis")
 		self.redis_host = self.__get_str_from_env_or_config("COOLCANTONESE_REDIS_PORT_6379_TCP_ADDR","redis_host")
 		self.redis_port = self.__get_int_from_env_or_config("COOLCANTONESE_REDIS_PORT_6379_TCP_PORT","redis_port")
-		self.redis_password = self.__get_bool_from_env_or_config("COOLCANTONESE_REDIS_PASSWORD","redis_password")
+		self.redis_password = self.__get_str_from_env_or_config("COOLCANTONESE_REDIS_PASSWORD","redis_password")
 		self.redis_db = cfg.getint(env, "redis_db")
 		self.translation_expire_seconds = eval(cfg.get(env,"translation_expire_seconds"))
 		self.mediaid_expire_seconds = eval(cfg.get(env, "mediaid_expire_seconds"))
