@@ -1,12 +1,12 @@
 #粤讲粤酷微信公众号工程
-为了方便身边的朋友学习粤语，开发了这个微信公众号，在线提供国语到粤语的文字和语音翻译。微信扫描下面的二维码即可关注公众号。
-![粤讲粤酷](http://7sbpek.com1.z0.glb.clouddn.com/img/qrcode.jpg)
+为了方便身边的朋友学习粤语，开发了这个微信公众号，提供在线国语到粤语的文字和语音翻译。微信扫描下面的二维码即可关注公众号。
 
+![粤讲粤酷](http://7sbpek.com1.z0.glb.clouddn.com/img/qrcode.jpg)
 
 ##配置
 参考configs目录下的`env.cfg.example`和`redis.cfg.example`文件生成`env.cfg`和`redis.cfg`
 
-##部署：
+##部署
 推荐使用docker部署
 需要安装docker和fig，然后在工程目录下运行`sudo fig up`即可
 
