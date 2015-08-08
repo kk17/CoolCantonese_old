@@ -308,7 +308,7 @@ def translate(userid, content, in_chat_mode=False, user_content=None):
 
 		##save tranlation record of user
 		if record_services:
-			if in_chat_mode:
+			if not in_chat_mode:
 				reply = Record("translator", result.pretty(), Record.TRANSLATION_RESULT)
 				record = Record(userid, content, Record.TRANSLATION_REQUEST,reply)
 			else:
