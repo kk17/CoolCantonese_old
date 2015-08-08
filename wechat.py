@@ -267,6 +267,8 @@ def get_music_msg(result):
 def handle_text_msg(txtMsg):
 	userid = txtMsg.source
 	content = txtMsg.content
+	if "#" == content or u"＃" == content:
+		return get_last_translation_audio(userid)
 	need_translation_content = content
 	in_chat_mode = check_and_refresh_user_chat_mode(userid)
 	if in_chat_mode:
@@ -295,8 +297,6 @@ def handle_voice_msg(voiceMsg):
 
 def translate(userid, content, in_chat_mode=False, user_content=None):
 	try:
-		if "#" == content or u"＃" == content:
-			return get_last_translation_audio(userid)
 		# if type(content) == unicode:
 		# 	content = content.encode('utf-8')
 
