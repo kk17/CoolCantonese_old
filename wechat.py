@@ -312,7 +312,7 @@ def translate(userid, content, in_chat_mode=False, user_content=None):
 				reply = Record("translator", result.pretty(), Record.TRANSLATION_RESULT)
 				record = Record(userid, content, Record.TRANSLATION_REQUEST,reply)
 			else:
-				reply = Record("tuling_robot", result.pretty(), Record.CHAT_RESPONSE)
+				reply = Record("tuling_robot", content +"\n----\n"+ result.pretty(), Record.CHAT_RESPONSE)
 				record = Record(userid, user_content, Record.CHAT_REQUEST,reply)
 			try:
 				record_services.add_record(record)
