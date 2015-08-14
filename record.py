@@ -31,7 +31,7 @@ class RecordService(object):
 		
 
 	def add_record(self, record):
-		url = "%s/record" % self.services_url_prefix
+		url = "%s/records" % self.services_url_prefix
 		headers = {'Content-type': 'application/json'}
 		data = record.json()
 		# print data

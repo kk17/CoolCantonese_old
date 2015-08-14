@@ -215,6 +215,16 @@ def get_pronus(txtMsg):
 	else:
 		return u"暂无解析1"
 
+def get_notations_result(userid, content):
+	r = phonetic.get_notations_result(content)
+	if r:
+		if cache_user_msg(userid,content):
+			return r.pretty() + u"\n--回复#获得语音--"
+		else:
+			return r.pretty()
+	else:
+		return u"暂无解析1"
+
 
 @robot.filter("*")
 def get_radio():
@@ -267,6 +277,9 @@ def get_music_msg(result):
 def handle_text_msg(txtMsg):
 	userid = txtMsg.source
 	content = txtMsg.content
+	if content.startswith("@"):
+		content = content[1:]
+		return get_notations_result(userid, content)
 	if "#" == content or u"＃" == content:
 		return get_last_translation_audio(userid)
 	need_translation_content = content
