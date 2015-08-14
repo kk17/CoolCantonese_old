@@ -14,6 +14,7 @@ from util import to_utf8,to_unicode
 import re
 from record import Record,RecordService
 from tuling import TulingService
+from translate_result import TranslateResult
 import sys
 
 reload(sys)
@@ -200,6 +201,23 @@ def cache_user_msg(userid, msg):
 	else:
 		return False
 
+def cache_notations(userid, result):
+	if redis_client:
+		key = userid + "_last_notations"
+		redis_client.set(key, result)
+		redis_client.expire(key, cfg.translation_expire_seconds)
+		return True
+	else:
+		return False
+
+def get_cache_notations(userid):
+	if redis_client:
+		key = userid + "_last_notations"
+		result = redis_client.get(key)
+		return result
+	else:
+		return None
+
 chn = re.compile(u"^[\u4e00-\u9fa5]$")
 
 @robot.filter(chn)
@@ -218,10 +236,16 @@ def get_pronus(txtMsg):
 def get_notations_result(userid, content):
 	r = phonetic.get_notations_result(content)
 	if r:
-		if cache_user_msg(userid,content):
+		if cache_user_msg(userid,"@"+content):
+			result = TranslateResult()
+			result.words = r.in_str
+			result.pronounce_list = r.plist
+			result.has_pronounce = True
+			cache_notations(userid, result)
 			return r.pretty() + u"\n--回复#获得语音--"
 		else:
 			return r.pretty()
+
 	else:
 		return u"暂无解析1"
 
@@ -249,7 +273,7 @@ def get_radio():
 	"http://7sbpek.com1.z0.glb.clouddn.com/img/stephen.jpg",
 	"http://stephen.kkee.tk"]]
 
-def get_last_translation_audio(userid):
+def get_last_msg_audio(userid):
 	key = userid + "_last_content"
 	content = redis_client.get(key)
 	if content:
@@ -260,6 +284,10 @@ def get_last_translation_audio(userid):
 				prons.append(p.pronunciation)
 			url = audio_fetcher.get_pronounces_audio_url(prons)
 			return [content, ",".join(prons), url]
+		elif content.startswith("@"):
+			content= content[1:]
+			result = get_cache_notations(userid) 
+			return get_music_msg(result)
 		else:
 			result = get_cache_translation(content) 
 			return get_music_msg(result)
@@ -267,7 +295,8 @@ def get_last_translation_audio(userid):
 		return u"抱歉，找不到上一条消息"
 
 def get_music_msg(result):
-	if result.has_pronounce:
+	if cfg.enable_ekho and result.has_pronounce:
+		print result.words
 		url = audio_fetcher.get_result_audio_url(result)
 		return [result.words,result.get_words_with_pronounces(),url]
 	else:
@@ -281,7 +310,7 @@ def handle_text_msg(txtMsg):
 		content = content[1:]
 		return get_notations_result(userid, content)
 	if "#" == content or u"＃" == content:
-		return get_last_translation_audio(userid)
+		return get_last_msg_audio(userid)
 	need_translation_content = content
 	in_chat_mode = check_and_refresh_user_chat_mode(userid)
 	if in_chat_mode:
