@@ -1,10 +1,10 @@
 wechat:
   image: kk17/coolcantonese
   environment:
-    - WECHAT_TOKEN=R1A5ZtDqm7OrpFa9xPKsu
-    - BAIDU_TRANSLATE_CLIENT_ID=foAIGL40ZOCv2lrZhnRQ1QCf
-    - QINIU_ACCESS_KEY=DKGr6URLzvjjfiG0M55N9LM3X3S-FF4zoirJPaPL
-    - QINIU_SECRET_KEY=qRlx8GbHGPQ_2iOcjJxcjyB1cdAb3p0Cb4mucaDA
+    - WECHAT_TOKEN=
+    - BAIDU_TRANSLATE_CLIENT_ID=
+    - QINIU_ACCESS_KEY=
+    - QINIU_SECRET_KEY=
   entrypoint: python
   command: wechat.py -e Pro
   ports:
