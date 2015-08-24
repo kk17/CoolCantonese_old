@@ -57,6 +57,14 @@ class WechatConfig(object):
 		self.qiniu_bucket_name = self.__get_str_from_env_or_config("QINIU_BUCKET_NAME","qiniu_bucket_name")
 		self.qiniu_bucket_domain = self.__get_str_from_env_or_config("QINIU_BUCKET_DOMAIN","qiniu_bucket_domain")
 
+		self.enable_record_services = self.__get_bool_from_env_or_config("ENABLE_RECORD_SERVICES","enable_record_services")
+		self.record_services_url_prefix = self.__get_str_from_env_or_config("RECORD_SERVICES_URL_PREFIX","record_services_url_prefix")
+		
+		self.enable_tuling_robot = self.__get_bool_from_env_or_config("ENABLE_TULING_ROBOT","enable_tuling_robot")
+		self.tuling_robot_api_key = self.__get_str_from_env_or_config("TULING_ROBOT_API_KEY","tuling_robot_api_key")
+
+
+
 	def __get_str_from_env_or_config(self, env_key, config_name):
 		val = get_from_env(env_key)
 		if val is None:

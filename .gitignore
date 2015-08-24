@@ -9,3 +9,4 @@ werobot_session
 *.class
 local_wechat.conf
 local_fig.yml
+**/prod.ymal

@@ -12,6 +12,8 @@ from audio import AudioFetcher
 import phonetic
 from util import to_utf8,to_unicode
 import re
+from record import Record,RecordService
+from tuling import TulingService
 import sys
 
 reload(sys)
@@ -50,6 +52,14 @@ if cfg.enable_redis:
 
 audio_fetcher = AudioFetcher(cfg)
 robot = werobot.WeRoBot(token=cfg.wechat_token)
+
+record_services = None
+if cfg.enable_record_services:
+	record_services = RecordService(cfg.record_services_url_prefix)
+
+tuling_robot = None
+if cfg.enable_tuling_robot:
+	tuling_robot = TulingService(cfg.tuling_robot_api_key)
 
 def get_cache_translation(content):
 	result = None
@@ -131,8 +141,39 @@ def get_menu():
 	return article_menu
 
 @robot.filter(re.compile(u"[!！]"))
-def get_menu2():
-	return text_menu
+def toggle_chat_mode(txtMsg):
+	if not redis_client:
+		return txtMsg.content;
+	userid = txtMsg.source
+	if toggle_user_chat_mode(userid):
+		return u"你已进入聊天模式，欢迎跟我聊天！5分钟没有响应将自动退出聊天模式，回复！可以直接退出。"
+	else:
+		return u"你已退出进入聊天模式。"
+
+def toggle_user_chat_mode(userid, check_and_refresh=False):
+	if not redis_client:
+		return False
+	key = userid+"_chat_mode"
+	in_chat_mode = redis_client.exists(key)
+	if check_and_refresh:
+		if in_chat_mode:
+			redis_client.set(key,"")
+			redis_client.expire(key, 5*60)
+			return True
+		else:
+			return False
+	else:
+		if in_chat_mode:
+			redis_client.delete(key)
+			return False
+		else:
+			redis_client.set(key,"")
+			redis_client.expire(key, 5*60)
+			return True
+
+def check_and_refresh_user_chat_mode(userid):
+	return toggle_user_chat_mode(userid, True)
+
 
 @robot.filter(re.compile(u"^[a-z]+\d$"))
 def get_chars(txtMsg):
@@ -163,9 +204,19 @@ chn = re.compile(u"^[\u4e00-\u9fa5]$")
 
 @robot.filter(chn)
 def get_pronus(txtMsg):
-	userid = txtMsg.source
+	userid = txtMsg.source	
 	content = txtMsg.content
 	r = phonetic.get_pronunciations_result(content)
+	if r:
+		if cache_user_msg(userid,content):
+			return r.pretty() + u"\n--回复#获得语音--"
+		else:
+			return r.pretty()
+	else:
+		return u"暂无解析1"
+
+def get_notations_result(userid, content):
+	r = phonetic.get_notations_result(content)
 	if r:
 		if cache_user_msg(userid,content):
 			return r.pretty() + u"\n--回复#获得语音--"
@@ -226,8 +277,22 @@ def get_music_msg(result):
 def handle_text_msg(txtMsg):
 	userid = txtMsg.source
 	content = txtMsg.content
+	if content.startswith("@"):
+		content = content[1:]
+		return get_notations_result(userid, content)
+	if "#" == content or u"＃" == content:
+		return get_last_translation_audio(userid)
+	need_translation_content = content
+	in_chat_mode = check_and_refresh_user_chat_mode(userid)
+	if in_chat_mode:
+		ret, response = tuling_robot.send_msg(userid, content)
+		if ret:
+			need_translation_content = response
+		else:
+			return response
+
 	logger.info("revice text message from %s, content: %s" % (userid,to_utf8(content)))
-	return translate(userid, content)
+	return translate(userid, need_translation_content, in_chat_mode, content)
 
 
 @robot.voice
@@ -243,10 +308,8 @@ def handle_voice_msg(voiceMsg):
 	return reply
 
 
-def translate(userid, content):
+def translate(userid, content, in_chat_mode=False, user_content=None):
 	try:
-		if "#" == content or u"＃" == content:
-			return get_last_translation_audio(userid)
 		# if type(content) == unicode:
 		# 	content = content.encode('utf-8')
 
@@ -255,6 +318,21 @@ def translate(userid, content):
 			content = content[1:]
 			return_audio = True
 		result = get_cache_translation(content) 
+
+		##save tranlation record of user
+		if record_services:
+			if not in_chat_mode:
+				reply = Record("translator", result.pretty(), Record.TRANSLATION_RESULT)
+				record = Record(userid, content, Record.TRANSLATION_REQUEST,reply)
+			else:
+				reply = Record("tuling_robot", content +"\n----\n"+ result.pretty(), Record.CHAT_RESPONSE)
+				record = Record(userid, user_content, Record.CHAT_REQUEST,reply)
+			try:
+				record_services.add_record(record)
+			except Exception, e:
+				logger.exception(e)
+			
+
 		logger.info("get translation:%s" % result.words)
 		if client:
 			client.send_text_message(userid, result.words)
@@ -269,7 +347,10 @@ def translate(userid, content):
 				key = userid + "_last_content"
 				redis_client.set(key, content)
 				redis_client.expire(key, cfg.translation_expire_seconds)
-				return result.pretty() + u"\n--回复#获得语音--"
+				resp_text = result.pretty() + u"\n--回复#获得语音--"
+				if in_chat_mode:
+					resp_text = content +"\n----\n"+resp_text
+				return  resp_text
 			else:
 				return result.pretty()
 			
